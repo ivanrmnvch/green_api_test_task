@@ -12,6 +12,7 @@ import { renderJson, type UiResult } from './renderJson'
 let config: GreenApiConfig | null = null
 
 function getDefaultApiUrl(): string {
+  //return 'https://3100.api.green-api.com/v3'
   return 'https://1103.api.green-api.com'
 }
 
