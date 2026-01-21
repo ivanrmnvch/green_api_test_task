@@ -12,7 +12,7 @@ import { renderJson, type UiResult } from './renderJson'
 let config: GreenApiConfig | null = null
 
 function getDefaultApiUrl(): string {
-  return 'https://api.green-api.com'
+  return 'https://1103.api.green-api.com'
 }
 
 function loadConfigFromStorage(): GreenApiConfig | null {
