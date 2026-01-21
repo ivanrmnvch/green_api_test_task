@@ -22,6 +22,7 @@ export interface MethodsBlock {
 
 export interface ResultsBlock {
   section: HTMLElement
+  alert: HTMLElement
   container: HTMLElement
 }
 
@@ -143,6 +144,11 @@ export function initLayout(root: HTMLElement): AppLayout {
 
   const results: ResultsBlock = {
     section: resultsSection,
+    alert: findElement<HTMLElement>(
+      root,
+      '#results-alert',
+      'Results alert not found',
+    ),
     container: findElement<HTMLElement>(
       root,
       '#results-container',

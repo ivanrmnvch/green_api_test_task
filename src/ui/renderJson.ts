@@ -24,6 +24,7 @@ export function renderJson(result: UiResult, container: HTMLElement): void {
   })
 
   container.appendChild(formatter.render())
+  container.scrollTop = container.scrollHeight
 }
 
 

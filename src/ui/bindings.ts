@@ -62,8 +62,48 @@ function setMethodsEnabled(layout: AppLayout, enabled: boolean): void {
     })
 }
 
+function setResultsAlert(
+  layout: AppLayout,
+  kind: 'success' | 'error' | 'info',
+  message: string,
+): void {
+  const el = layout.results.alert
+  el.classList.remove('error', 'success')
+  if (kind === 'error') {
+    el.classList.add('error')
+  } else if (kind === 'success') {
+    el.classList.add('success')
+  }
+  el.textContent = message
+}
+
 function showResult(layout: AppLayout, result: UiResult): void {
+  if (result.ok) {
+    setResultsAlert(layout, 'success', `Метод ${result.method} выполнен успешно`)
+  } else {
+    const baseMessage = result.error.message || 'Произошла ошибка'
+    setResultsAlert(layout, 'error', `${result.method}: ${baseMessage}`)
+  }
+
   renderJson(result, layout.results.container)
+}
+
+async function withButtonLoading(
+  button: HTMLButtonElement,
+  action: () => Promise<void>,
+): Promise<void> {
+  const originalText = button.textContent
+  button.disabled = true
+  button.textContent = 'Загрузка...'
+
+  try {
+    await action()
+  } finally {
+    button.disabled = false
+    if (originalText !== null) {
+      button.textContent = originalText
+    }
+  }
 }
 
 function validateConnectionInputs(
@@ -145,23 +185,28 @@ export function bindHandlers(layout: AppLayout): void {
       return
     }
 
-    try {
-      const data = await getSettings(config)
-      const result: UiResult = {
-        ok: true,
-        method: 'getSettings',
-        data,
+    const currentConfig = config
+
+    await withButtonLoading(layout.methods.getSettingsButton, async () => {
+      if (!currentConfig) return
+      try {
+        const data = await getSettings(currentConfig)
+        const result: UiResult = {
+          ok: true,
+          method: 'getSettings',
+          data,
+        }
+        showResult(layout, result)
+      } catch (error) {
+        const mapped = mapAxiosError(error)
+        const result: UiResult = {
+          ok: false,
+          method: 'getSettings',
+          error: mapped,
+        }
+        showResult(layout, result)
       }
-      showResult(layout, result)
-    } catch (error) {
-      const mapped = mapAxiosError(error)
-      const result: UiResult = {
-        ok: false,
-        method: 'getSettings',
-        error: mapped,
-      }
-      showResult(layout, result)
-    }
+    })
   })
 
   layout.methods.getStateButton.addEventListener('click', async () => {
@@ -177,23 +222,28 @@ export function bindHandlers(layout: AppLayout): void {
       return
     }
 
-    try {
-      const data = await getStateInstance(config)
-      const result: UiResult = {
-        ok: true,
-        method: 'getStateInstance',
-        data,
+    const currentConfig = config
+
+    await withButtonLoading(layout.methods.getStateButton, async () => {
+      if (!currentConfig) return
+      try {
+        const data = await getStateInstance(currentConfig)
+        const result: UiResult = {
+          ok: true,
+          method: 'getStateInstance',
+          data,
+        }
+        showResult(layout, result)
+      } catch (error) {
+        const mapped = mapAxiosError(error)
+        const result: UiResult = {
+          ok: false,
+          method: 'getStateInstance',
+          error: mapped,
+        }
+        showResult(layout, result)
       }
-      showResult(layout, result)
-    } catch (error) {
-      const mapped = mapAxiosError(error)
-      const result: UiResult = {
-        ok: false,
-        method: 'getStateInstance',
-        error: mapped,
-      }
-      showResult(layout, result)
-    }
+    })
   })
 
   layout.methods.sendMessageForm.addEventListener('submit', async (event) => {
@@ -250,27 +300,41 @@ export function bindHandlers(layout: AppLayout): void {
       return
     }
 
-    try {
-      const data = await sendMessage(config, {
-        chatId,
-        message,
-      })
-      const result: UiResult = {
-        ok: true,
-        method: 'sendMessage',
-        data,
-      }
-      showResult(layout, result)
-      layout.methods.sendMessageTextInput.value = ''
-    } catch (error) {
-      const mapped = mapAxiosError(error)
-      const result: UiResult = {
-        ok: false,
-        method: 'sendMessage',
-        error: mapped,
-      }
-      showResult(layout, result)
+    const submitButton =
+      layout.methods.sendMessageForm.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      )
+
+    if (!submitButton) {
+      return
     }
+
+    const currentConfig = config
+
+    await withButtonLoading(submitButton, async () => {
+      if (!currentConfig) return
+      try {
+        const data = await sendMessage(currentConfig, {
+          chatId,
+          message,
+        })
+        const result: UiResult = {
+          ok: true,
+          method: 'sendMessage',
+          data,
+        }
+        showResult(layout, result)
+        layout.methods.sendMessageTextInput.value = ''
+      } catch (error) {
+        const mapped = mapAxiosError(error)
+        const result: UiResult = {
+          ok: false,
+          method: 'sendMessage',
+          error: mapped,
+        }
+        showResult(layout, result)
+      }
+    })
   })
 
   layout.methods.sendFileForm.addEventListener('submit', async (event) => {
@@ -341,28 +405,42 @@ export function bindHandlers(layout: AppLayout): void {
       return
     }
 
-    try {
-      const data = await sendFileByUrl(config, {
-        chatId,
-        urlFile,
-        fileName,
-        caption,
-      })
-      const result: UiResult = {
-        ok: true,
-        method: 'sendFileByUrl',
-        data,
-      }
-      showResult(layout, result)
-    } catch (error) {
-      const mapped = mapAxiosError(error)
-      const result: UiResult = {
-        ok: false,
-        method: 'sendFileByUrl',
-        error: mapped,
-      }
-      showResult(layout, result)
+    const submitButton =
+      layout.methods.sendFileForm.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      )
+
+    if (!submitButton) {
+      return
     }
+
+    const currentConfig = config
+
+    await withButtonLoading(submitButton, async () => {
+      if (!currentConfig) return
+      try {
+        const data = await sendFileByUrl(currentConfig, {
+          chatId,
+          urlFile,
+          fileName,
+          caption,
+        })
+        const result: UiResult = {
+          ok: true,
+          method: 'sendFileByUrl',
+          data,
+        }
+        showResult(layout, result)
+      } catch (error) {
+        const mapped = mapAxiosError(error)
+        const result: UiResult = {
+          ok: false,
+          method: 'sendFileByUrl',
+          error: mapped,
+        }
+        showResult(layout, result)
+      }
+    })
   })
 }
 

@@ -30,14 +30,52 @@ export function mapAxiosError(error: unknown): ApiErrorCommon {
     const httpCode = err.response?.status
     const body = err.response?.data
 
-    const messageFromBody = body?.message || body?.error
+    const rawMessage = body?.message || body?.error || err.message
+
+    let friendlyMessage = rawMessage || 'Unexpected error while calling GREEN-API'
+
+    if (httpCode === 400) {
+      friendlyMessage =
+        rawMessage ||
+        '400 Bad Request: проверьте параметры запроса (Validation failed, chatId, message и др.)'
+    }
+
+    if (httpCode === 401) {
+      friendlyMessage =
+        rawMessage || '401 Unauthorized: проверьте ApiTokenInstance и права доступа'
+    }
+
+    if (httpCode === 403) {
+      friendlyMessage =
+        rawMessage || '403 Forbidden: проверьте idInstance и корректность URL'
+    }
+
+    if (httpCode === 404) {
+      friendlyMessage =
+        rawMessage || '404 Not Found: проверьте HTTP-метод и путь запроса'
+    }
+
+    if (httpCode === 429) {
+      friendlyMessage =
+        rawMessage ||
+        '429 Too Many Requests: превышен лимит запросов, уменьшите частоту вызовов'
+    }
+
+    if (httpCode === 500) {
+      friendlyMessage =
+        rawMessage ||
+        '500 Internal Server Error: ошибка на стороне GREEN-API, попробуйте повторить запрос позже'
+    }
+
+    if (httpCode === 502) {
+      friendlyMessage =
+        rawMessage ||
+        '502 Bad Gateway: сервер не получил ответ от целевого сервиса, повторите запрос позднее'
+    }
 
     return {
       httpCode,
-      message:
-        messageFromBody ??
-        err.message ??
-        'Unexpected error while calling GREEN-API',
+      message: friendlyMessage,
       details: body,
     }
   }
