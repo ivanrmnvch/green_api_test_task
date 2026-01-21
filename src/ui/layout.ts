@@ -32,202 +32,123 @@ export interface AppLayout {
   results: ResultsBlock
 }
 
-function createConnectionBlock(section: HTMLElement): ConnectionBlock {
-  section.className = 'panel panel-connection'
-
-  const title = document.createElement('h2')
-  title.textContent = 'Подключение к GREEN-API'
-
-  const description = document.createElement('p')
-  description.className = 'panel-description'
-  description.textContent =
-    'Введите idInstance и ApiTokenInstance из личного кабинета GREEN-API'
-
-  const idLabel = document.createElement('label')
-  idLabel.textContent = 'idInstance'
-
-  const idInput = document.createElement('input')
-  idInput.type = 'text'
-  idInput.placeholder = '1101790001'
-
-  const tokenLabel = document.createElement('label')
-  tokenLabel.textContent = 'ApiTokenInstance'
-
-  const tokenInput = document.createElement('input')
-  tokenInput.type = 'password'
-  tokenInput.placeholder = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-
-  const controlsRow = document.createElement('div')
-  controlsRow.className = 'connection-controls'
-
-  const connectButton = document.createElement('button')
-  connectButton.type = 'button'
-  connectButton.textContent = 'Сохранить подключение'
-
-  const statusLabel = document.createElement('span')
-  statusLabel.className = 'connection-status'
-  statusLabel.textContent = 'Не подключено'
-
-  controlsRow.append(connectButton, statusLabel)
-
-  section.append(
-    title,
-    description,
-    idLabel,
-    idInput,
-    tokenLabel,
-    tokenInput,
-    controlsRow,
-  )
-
-  return {
-    section,
-    idInput,
-    tokenInput,
-    connectButton,
-    statusLabel,
+function findElement<T extends HTMLElement>(
+  root: HTMLElement,
+  selector: string,
+  errorMessage: string,
+): T {
+  const element = root.querySelector<T>(selector)
+  if (!element) {
+    throw new Error(errorMessage)
   }
-}
-
-function createMethodsBlock(section: HTMLElement): MethodsBlock {
-  section.className = 'panel panel-methods'
-
-  const title = document.createElement('h2')
-  title.textContent = 'Методы GREEN-API'
-
-  const buttonsRow = document.createElement('div')
-  buttonsRow.className = 'methods-row'
-
-  const getSettingsButton = document.createElement('button')
-  getSettingsButton.type = 'button'
-  getSettingsButton.textContent = 'getSettings'
-
-  const getStateButton = document.createElement('button')
-  getStateButton.type = 'button'
-  getStateButton.textContent = 'getStateInstance'
-
-  buttonsRow.append(getSettingsButton, getStateButton)
-
-  const sendMessageForm = document.createElement('form')
-  sendMessageForm.className = 'method-form'
-
-  const sendMessageTitle = document.createElement('h3')
-  sendMessageTitle.textContent = 'sendMessage'
-
-  const sendMessageChatIdInput = document.createElement('input')
-  sendMessageChatIdInput.type = 'text'
-  sendMessageChatIdInput.placeholder = 'chatId (7999...@c.us)'
-
-  const sendMessageTextInput = document.createElement('textarea')
-  sendMessageTextInput.rows = 3
-  sendMessageTextInput.placeholder = 'Текст сообщения'
-
-  const sendMessageSubmit = document.createElement('button')
-  sendMessageSubmit.type = 'submit'
-  sendMessageSubmit.textContent = 'Отправить сообщение'
-
-  sendMessageForm.append(
-    sendMessageTitle,
-    sendMessageChatIdInput,
-    sendMessageTextInput,
-    sendMessageSubmit,
-  )
-
-  const sendFileForm = document.createElement('form')
-  sendFileForm.className = 'method-form'
-
-  const sendFileTitle = document.createElement('h3')
-  sendFileTitle.textContent = 'sendFileByUrl'
-
-  const sendFileChatIdInput = document.createElement('input')
-  sendFileChatIdInput.type = 'text'
-  sendFileChatIdInput.placeholder = 'chatId (7999...@c.us)'
-
-  const sendFileUrlInput = document.createElement('input')
-  sendFileUrlInput.type = 'url'
-  sendFileUrlInput.placeholder = 'urlFile (https://...)'
-
-  const sendFileNameInput = document.createElement('input')
-  sendFileNameInput.type = 'text'
-  sendFileNameInput.placeholder = 'fileName (file.png)'
-
-  const sendFileCaptionInput = document.createElement('input')
-  sendFileCaptionInput.type = 'text'
-  sendFileCaptionInput.placeholder = 'caption (опционально)'
-
-  const sendFileSubmit = document.createElement('button')
-  sendFileSubmit.type = 'submit'
-  sendFileSubmit.textContent = 'Отправить файл'
-
-  sendFileForm.append(
-    sendFileTitle,
-    sendFileChatIdInput,
-    sendFileUrlInput,
-    sendFileNameInput,
-    sendFileCaptionInput,
-    sendFileSubmit,
-  )
-
-  section.append(title, buttonsRow, sendMessageForm, sendFileForm)
-
-  return {
-    section,
-    getSettingsButton,
-    getStateButton,
-    sendMessageForm,
-    sendMessageChatIdInput,
-    sendMessageTextInput,
-    sendFileForm,
-    sendFileChatIdInput,
-    sendFileUrlInput,
-    sendFileNameInput,
-    sendFileCaptionInput,
-  }
-}
-
-function createResultsBlock(section: HTMLElement): ResultsBlock {
-  section.className = 'panel panel-results'
-
-  const title = document.createElement('h2')
-  title.textContent = 'Ответы методов'
-
-  const container = document.createElement('div')
-  container.className = 'results-json'
-
-  section.append(title, container)
-
-  return {
-    section,
-    container,
-  }
+  return element
 }
 
 export function initLayout(root: HTMLElement): AppLayout {
-  const connectionSection =
-    (root.querySelector<HTMLElement>('#connection-section') ??
-      document.createElement('section'))
+  const connectionSection = findElement<HTMLElement>(
+    root,
+    '#connection-section',
+    'Connection section not found',
+  )
 
-  const methodsSection =
-    (root.querySelector<HTMLElement>('#methods-section') ??
-      document.createElement('section'))
+  const methodsSection = findElement<HTMLElement>(
+    root,
+    '#methods-section',
+    'Methods section not found',
+  )
 
-  const resultsSection =
-    (root.querySelector<HTMLElement>('#results-section') ??
-      document.createElement('section'))
+  const resultsSection = findElement<HTMLElement>(
+    root,
+    '#results-section',
+    'Results section not found',
+  )
 
-  if (!connectionSection.parentElement) {
-    root.appendChild(connectionSection)
+  const connection: ConnectionBlock = {
+    section: connectionSection,
+    idInput: findElement<HTMLInputElement>(
+      root,
+      '#id-instance',
+      'idInstance input not found',
+    ),
+    tokenInput: findElement<HTMLInputElement>(
+      root,
+      '#api-token',
+      'apiToken input not found',
+    ),
+    connectButton: findElement<HTMLButtonElement>(
+      root,
+      '#connect-button',
+      'Connect button not found',
+    ),
+    statusLabel: findElement<HTMLElement>(
+      root,
+      '#connection-status',
+      'Connection status label not found',
+    ),
   }
-  if (!methodsSection.parentElement) {
-    root.appendChild(methodsSection)
-  }
-  if (!resultsSection.parentElement) {
-    root.appendChild(resultsSection)
+
+  const methods: MethodsBlock = {
+    section: methodsSection,
+    getSettingsButton: findElement<HTMLButtonElement>(
+      root,
+      '#get-settings-button',
+      'getSettings button not found',
+    ),
+    getStateButton: findElement<HTMLButtonElement>(
+      root,
+      '#get-state-button',
+      'getStateInstance button not found',
+    ),
+    sendMessageForm: findElement<HTMLFormElement>(
+      root,
+      '#send-message-form',
+      'sendMessage form not found',
+    ),
+    sendMessageChatIdInput: findElement<HTMLInputElement>(
+      root,
+      '#send-message-chat-id',
+      'sendMessage chatId input not found',
+    ),
+    sendMessageTextInput: findElement<HTMLTextAreaElement>(
+      root,
+      '#send-message-text',
+      'sendMessage text input not found',
+    ),
+    sendFileForm: findElement<HTMLFormElement>(
+      root,
+      '#send-file-form',
+      'sendFileByUrl form not found',
+    ),
+    sendFileChatIdInput: findElement<HTMLInputElement>(
+      root,
+      '#send-file-chat-id',
+      'sendFileByUrl chatId input not found',
+    ),
+    sendFileUrlInput: findElement<HTMLInputElement>(
+      root,
+      '#send-file-url',
+      'sendFileByUrl url input not found',
+    ),
+    sendFileNameInput: findElement<HTMLInputElement>(
+      root,
+      '#send-file-name',
+      'sendFileByUrl fileName input not found',
+    ),
+    sendFileCaptionInput: findElement<HTMLInputElement>(
+      root,
+      '#send-file-caption',
+      'sendFileByUrl caption input not found',
+    ),
   }
 
-  const connection = createConnectionBlock(connectionSection)
-  const methods = createMethodsBlock(methodsSection)
-  const results = createResultsBlock(resultsSection)
+  const results: ResultsBlock = {
+    section: resultsSection,
+    container: findElement<HTMLElement>(
+      root,
+      '#results-container',
+      'Results container not found',
+    ),
+  }
 
   return {
     root,

@@ -1,16 +1,92 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ui</title>
+    <title>GREEN-API Test</title>
   </head>
   <body>
     <div id="app">
-      <section id="connection-section"></section>
-      <section id="methods-section"></section>
-      <section id="results-section"></section>
+      <section id="connection-section" class="panel panel-connection">
+        <h2>Подключение к GREEN-API</h2>
+        <p class="panel-description">
+          Введите idInstance и ApiTokenInstance из личного кабинета GREEN-API
+        </p>
+        <label for="id-instance">idInstance</label>
+        <input
+          id="id-instance"
+          type="text"
+          placeholder="1101790001"
+        />
+        <label for="api-token">ApiTokenInstance</label>
+        <input
+          id="api-token"
+          type="password"
+          placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        />
+        <div class="connection-controls">
+          <button id="connect-button" type="button">
+            Сохранить подключение
+          </button>
+          <span id="connection-status" class="connection-status">
+            Не подключено
+          </span>
+        </div>
+      </section>
+
+      <section id="methods-section" class="panel panel-methods">
+        <h2>Методы GREEN-API</h2>
+        <div class="methods-row">
+          <button id="get-settings-button" type="button">getSettings</button>
+          <button id="get-state-button" type="button">getStateInstance</button>
+        </div>
+
+        <form id="send-message-form" class="method-form">
+          <h3>sendMessage</h3>
+          <input
+            id="send-message-chat-id"
+            type="text"
+            placeholder="chatId (7999...@c.us)"
+          />
+          <textarea
+            id="send-message-text"
+            rows="3"
+            placeholder="Текст сообщения"
+          ></textarea>
+          <button type="submit">Отправить сообщение</button>
+        </form>
+
+        <form id="send-file-form" class="method-form">
+          <h3>sendFileByUrl</h3>
+          <input
+            id="send-file-chat-id"
+            type="text"
+            placeholder="chatId (7999...@c.us)"
+          />
+          <input
+            id="send-file-url"
+            type="url"
+            placeholder="urlFile (https://...)"
+          />
+          <input
+            id="send-file-name"
+            type="text"
+            placeholder="fileName (file.png)"
+          />
+          <input
+            id="send-file-caption"
+            type="text"
+            placeholder="caption (опционально)"
+          />
+          <button type="submit">Отправить файл</button>
+        </form>
+      </section>
+
+      <section id="results-section" class="panel panel-results">
+        <h2>Ответы методов</h2>
+        <div id="results-container" class="results-json"></div>
+      </section>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
